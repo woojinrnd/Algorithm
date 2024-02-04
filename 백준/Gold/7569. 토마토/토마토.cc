@@ -1,74 +1,73 @@
 #include <iostream>
 #include <queue>
-#include <algorithm>
 
 using namespace std;
 
-struct Coord {
-    int x, y, z;
+const int max_size = 102;
+
+int h, n, m; //[h][n][m] = [높이][세로][가로]
+int N[max_size][max_size][max_size];
+int dist[max_size][max_size][max_size];
+int dx[] = {1, -1, 0, 0, 0, 0};
+int dy[] = {0, 0, 1, -1, 0, 0};
+int dz[] = {0, 0, 0, 0, 1, -1};
+struct point {
+	int x, y, z;
 };
 
-int m, n, h; // 가로 세로 높이 
-int N[103][103][103];
-int dist[103][103][103];
-int dx[6] = {0, 0, 1, -1, 0, 0};
-int dy[6] = {1, -1, 0, 0, 0, 0};
-int dz[6] = {0, 0, 0, 0, 1, -1};
-
 int main() {
-    // 입력 받기
-    cin >> m >> n >> h;
-    queue<Coord> Q;
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	queue<point> Q;
+	cin >> m >> n >> h;
 
-    for (int i = 0; i < h; ++i) {
-        for (int j = 0; j < n; ++j) {
-            for (int k = 0; k < m; ++k) {
-                cin >> N[j][k][i];
-                // 익은 토마토의 위치를 큐에 추가하고 해당 위치의 거리 초기화
-                if (N[j][k][i] == 1) {
-                    Q.push({j, k, i});
-                    dist[j][k][i] = 0;
-                } else if (N[j][k][i] == 0) {
-                    dist[j][k][i] = -1;
-                }
-            }
-        }
-    }
-
-    // BFS 수행
-    while (!Q.empty()) {
-        Coord cur = Q.front();
-        Q.pop();
-        for (int dir = 0; dir < 6; ++dir) {
-            int nx = cur.x + dx[dir];
-            int ny = cur.y + dy[dir];
-            int nz = cur.z + dz[dir];
-            // 범위 체크
-            if (nx < 0 || nx >= n || ny < 0 || ny >= m || nz < 0 || nz >= h) continue;
-            // 방문하지 않은 곳이면 거리 갱신하고 큐에 추가
-            if (dist[nx][ny][nz] >= 0) continue;
-            dist[nx][ny][nz] = dist[cur.x][cur.y][cur.z] + 1;
-            Q.push({nx, ny, nz});
-        }
-    }
-
-    // 최종 답 계산
+	
+	for (int k=0; k<h; ++k) {
+		for (int i=0; i<n; ++i) {
+			for (int j=0; j<m; ++j) { 
+				cin >> N[k][i][j];
+				// 익은 토마토 : BFS시작점 
+				if (N[k][i][j] == 1) {
+					Q.push({i,j,k});
+				}
+				// 익지 않은 토마토 : 아직 방문하지 않음
+				// bfs 돌릴 탐색 구간 
+				if (N[k][i][j] == 0) {
+					dist[k][i][j] = -1;
+				} 
+				
+			}
+		}
+	}
+	while (!Q.empty()) {
+		point cur = Q.front();
+		Q.pop();
+		for (int dir=0; dir<6;++dir) {
+			int nx = cur.x + dx[dir];
+			int ny = cur.y + dy[dir];
+			int nz = cur.z + dz[dir];
+			if (nx<0||nx>=n||ny<0||ny>=m||nz<0||nz>=h) continue;
+			if (dist[nz][nx][ny]>=0||N[nz][nx][ny]==-1) continue;
+			dist[nz][nx][ny] = dist[cur.z][cur.x][cur.y] + 1;
+			Q.push({nx, ny, nz});
+		}
+	}
+	
     int ans = 0;
-
-    for (int i = 0; i < h; ++i) {
-        for (int j = 0; j < n; ++j) {
-            for (int k = 0; k < m; ++k) {
-                // 익지 않은 토마토가 있는 경우 -1 출력 후 종료
-                if (dist[j][k][i] == -1) {
+    for (int k=0; k<h; ++k) {
+        for (int i=0; i<n; ++i) {
+            for (int j=0; j<m; ++j) {
+                if (N[k][i][j] == 0 && dist[k][i][j] == -1) {
                     cout << -1;
                     return 0;
                 }
-                ans = max(ans, dist[j][k][i]);
+                if (ans < dist[k][i][j]) ans = dist[k][i][j];
             }
         }
     }
-
-    // 정답 출력
     cout << ans;
-    return 0;
+	
+	
+	
+	return 0;
 }
