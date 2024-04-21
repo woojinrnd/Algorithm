@@ -1,35 +1,34 @@
 #include <iostream>
-#include <string>
-
-typedef long long ll;
+#include <stack>
 
 using namespace std;
 
+stack<char> st;
 string s;
-ll ans = 0;
-int cnt = 0;
+int ans;
 
-int main(void) {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-
-    cin >> s;
-    int sz = s.length();
-
-    for (int i = 0; i < sz; i++) {
-        if (s[i] == '(') {
-            cnt++;
-        } else {  // s[i] == ')'
-            if (s[i - 1] == '(') {  // 레이저일 경우
-                cnt--;
-                ans += cnt;
-            } else {  // 막대의 끝일 경우
-                cnt--;
-                ans++;
-            }
-        }
-    }
-
-    cout << ans << "\n";
-    return 0;
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cin >> s;
+	stack<char> st;
+	for (int i=0; i<s.length(); ++i) {
+		// '('이면 stack push 
+		if (s[i] == '(') st.push(s[i]);
+		// ')' 이면 
+		else {
+			// 직전 값이 '('이면 레이저 
+			if (s[i-1] == '(') {
+				st.pop();
+				ans += st.size();
+			}
+			// 직전 값이 '('아니라면 막대기 끝 
+			else {
+				st.pop();
+				ans++;
+			}
+		}
+	}
+	cout << ans;
+	return 0;
 }
