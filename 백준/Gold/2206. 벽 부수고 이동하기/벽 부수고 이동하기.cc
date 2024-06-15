@@ -4,73 +4,78 @@
 using namespace std;
 
 int n, m;
-char N[1000][1000];
-// [0] : 벽을 부수지 않고 목적지 도달
-// [1] : 벽을 부수고 목적지 도달 
-int dist[1000][1000][2];
-int dx[4] = {1, 0, -1, 0};
-int dy[4] = {0, 1, 0, -1};
-
+char N[1001][1001];
+bool vist[1001][1001][2]; // [x][y][wall]
+int dx[] = {1, 0, -1, 0};
+int dy[] = {0, 1, 0, -1};
 struct point {
-	int x, y;
-	int broken; 
-}; 
+    int x, y;
+    int wall_cnt;
+    int cur_cnt;
+};
 
-bool OOB(int x, int y) {
-	return (x<0||x>=n||y<0||y>=m);
-} 
+void input() {
+    cin >> n >> m;
+    for (int i=0; i<n; ++i) {
+        for (int j=0; j<m; ++j) {
+            cin >> N[i][j];
+        }
+    }
+}
 
 int bfs() {
-	// 초기화 
-	for (int i=0; i<n; ++i) {
-		for (int j=0; j<m; ++j) {
-			dist[i][j][0] = dist[i][j][1] = -1; // 모든 거리값을 -1로 초기화
-		}
-	}
+    // BFS Starting Point
+    queue<point> Q;
+    vist[0][0][0] = 1;
+    Q.push({0, 0, 0, 1});
+    
+    while(!Q.empty()) {
+        point cur = Q.front();
+        Q.pop();
 
-	queue<point> q;
-	dist[0][0][0] = dist[0][0][1] = 0; // 시작점의 거리값을 0으로 초기화
-	q.push({0, 0, 0});
+        // If Arrive
+        if (cur.x == n-1 && cur.y == m-1) {
+            return cur.cur_cnt;
+        }
 
-	while(!q.empty()) {
-		point cur = q.front();
-		// 큐에서 값을 꺼내기 전(새로운 탐색을 시작하기 전)도착하면 거리값을 출력 
-		if (cur.x==n-1 && cur.y==m-1) return dist[cur.x][cur.y][cur.broken]+1;
-		q.pop();
-		for (int dir=0; dir<4; ++dir) {
-			int nx = cur.x + dx[dir];
-			int ny = cur.y + dy[dir];
+        for (int dir=0; dir<4; ++dir) {
+            int nx = cur.x + dx[dir];
+            int ny = cur.y + dy[dir];
+            
+            // 범위안에 있다면
+            if (nx>=0&&nx<n&&ny>=0&&ny<m) {
+                // 벽을 만났고, 아직 벽을 부수지 않은 상태라면
+                if (N[nx][ny]=='1' && cur.wall_cnt==0) {
+                    vist[nx][ny][cur.wall_cnt+1] = 1;
+                    Q.push({nx, ny, cur.wall_cnt+1, cur.cur_cnt+1});
+                }
+                // 벽이 아니고, 아직 방문하지 않았다면
+                if (N[nx][ny]=='0' && vist[nx][ny][cur.wall_cnt]==0) {
+                    vist[nx][ny][cur.wall_cnt] = 1;
+                    Q.push({nx, ny, cur.wall_cnt, cur.cur_cnt+1});
+                }
+            }            
+        }
+    }
+    return -1;
+}
 
-			if (OOB(nx, ny)) continue;
+void solution() {
+    int res = bfs();
+    cout << res << '\n';
+}
 
-			if (N[nx][ny]=='0' && dist[nx][ny][cur.broken]==-1) {
-				// 벽을 부수지 않았을 때, 이동할 수 있는 경우의 거리값을 갱신하고 큐에 추가
-				dist[nx][ny][cur.broken] = dist[cur.x][cur.y][cur.broken] + 1;
-				q.push({nx, ny, cur.broken});
-			}
-
-			if (!cur.broken && N[nx][ny] == '1' && dist[nx][ny][1]==-1) {
-				// 벽을 부수지 않았고, 벽이 있는 칸에 도달한 경우,
-				// 벽을 부수고 이동하는 경우의 거리값을 갱신하고 큐에 추가
-				dist[nx][ny][1] = dist[cur.x][cur.y][cur.broken] + 1;
-				q.push({nx, ny, 1});
-			}			
-		}
-	} 
-	return -1;
+void solve() {
+    input();
+    solution();
 }
 
 int main() {
-	ios::sync_with_stdio(0);
-	cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
 
-	cin >> n >> m;
-	for (int i=0; i<n; ++i) {
-		for (int j=0; j<m; ++j) {
-			cin >> N[i][j];
-		}
-	}
+    solve();
 
-	cout << bfs(); // 최단 경로 출력 
-	return 0;
+    return 0;
 }
