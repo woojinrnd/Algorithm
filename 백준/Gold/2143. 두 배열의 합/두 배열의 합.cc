@@ -55,16 +55,20 @@ void getSum() {
 // A 연속합 + B 연속합 = T
 void solution() {
     getSum();
-    //cout << '\n';
+    // cout << '\n';
     sort(M_sum.begin(), M_sum.end());
     for (int i=0; i<N_sum.size(); ++i) {
         int B = T - N_sum[i];
         auto lower = lower_bound(M_sum.begin(), M_sum.end(), B);
         auto upper = upper_bound(M_sum.begin(), M_sum.end(), B);
+        // cout << "i : " << i+1 << ' ';
+        // cout << "lower : " << *lower << ' ';
+        // cout << "upper : " <<  *upper << ' ';
+        // cout << "dis : " << distance(lower, upper) <<'\n';
         ans += distance(lower, upper);
     }
-    //cout << '\n';
-    cout << ans << ' ';
+    // cout << '\n';
+    cout << ans << '\n';
 }
 
 void solve() {
