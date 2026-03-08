@@ -1,33 +1,44 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 int n, m;
-int arr[10];
-int isused[10];
+bool selected[10];
+vector<int> v;
 
-void func(int k) {
-	if (k == m) {
-		for (int i=0; i<m; ++i) {
-			cout << arr[i] << ' ';
-		}
-		cout << '\n';
-		return;
-	}
-	for (int i=1; i<=n; ++i) {
-		if (!isused[i]) {
-			isused[i] = 1;
-			arr[k] = i;
-			func(k+1);
-			isused[i]  =0;
-		}
-	}
+void input() {
+    cin >> n >> m;
 }
 
-int main() {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-	cin >> n >> m;
-	func(0);
-	return 0;
+void dfs(int cnt) {
+    if (cnt == m) {
+        for (int i=0; i<v.size(); ++i) {
+            cout << v[i] << ' ';
+        }
+        cout << '\n';
+    }
+
+    for (int i=1; i<=n; ++i) {
+        if (selected[i]) continue;
+        selected[i] = 1;
+        v.push_back(i);
+        dfs(cnt+1);
+        v.pop_back();
+        selected[i] = false;
+    }
+}
+
+void solve() {
+    input();
+    dfs(0);
+}
+
+int main(void) {
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    solve();
+
+    return 0;
 }
